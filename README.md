@@ -1,5 +1,7 @@
 # Snippets_19052024
 
+## Инструкция по развертыванию проекта
+
 1. Создать виртуальное окружение  
 `python3 -m venv django_venv`
 
@@ -9,7 +11,10 @@
 3. Установить пакеты в виртуальное окружение  
 `pip install -r requirements.txt`
 
-4. Запустить проект  
+4. Применить миграции  
+`python manange.py migrate`
+
+5. Запустить проект  
 `python manage.py runserver`
 
 
