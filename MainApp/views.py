@@ -1,4 +1,4 @@
-from django.http import HttpResponseNotFound
+from django.http import Http404, HttpResponseNotFound
 from django.shortcuts import render, redirect
 from django.core.exceptions import ObjectDoesNotExist
 from MainApp.models import Snippet
@@ -46,10 +46,39 @@ def snippet_detail(request, snippet_id):
     else:
         context = {
             "pagename": "Просмотр сниппета",
-            "snippet": snippet
+            "snippet": snippet,
+            "type": "view"
+        }
+        return render(request, "pages/snippet_detail.html", context)
+
+
+def snippet_edit(request, snippet_id: int):
+    try:
+        snippet = Snippet.objects.get(id=snippet_id)
+    except ObjectDoesNotExist:
+        return Http404
+    # Хотим получить страницу с данными сниппета
+    if request.method == "GET":
+        context = {
+            "pagename": "Редактирование сниппета",
+            "snippet": snippet,
+            "type": "edit"
         }
         return render(request, "pages/snippet_detail.html", context)
     
+    # Хотим использовать данные из формы и сохранить изменения в базе
+    if request.method == "POST":
+        data_form = request.POST
+        # Есть экземпляр класса Snippet и новые данные в словаре data_form 
+        # что нужно: взять данные из data_form и заменить ими значения атрибутов экземпляра snippet
+        # как это сделать?
+        snippet.name = data_form["name"]
+        snippet.code = data_form["code"]
+        snippet.creation_date = data_form["creation_date"]
+        # сохраняем этот изменения в базу
+        snippet.save()
+        return redirect("snippets-list")
+
 
 def snippet_delete(request, snippet_id: int):
     snippet = Snippet.objects.get(id=snippet_id)
