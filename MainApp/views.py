@@ -57,6 +57,8 @@ def snippet_edit(request, snippet_id: int):
         snippet = Snippet.objects.get(id=snippet_id)
     except ObjectDoesNotExist:
         return Http404
+    
+    # Variant 1
     # Хотим получить страницу с данными сниппета
     if request.method == "GET":
         context = {
@@ -66,6 +68,14 @@ def snippet_edit(request, snippet_id: int):
         }
         return render(request, "pages/snippet_detail.html", context)
     
+    # Variant 2
+    # ==================================================================
+    # Получение сниппета с помощью формы SnippetForm
+    # if request.method == "GET":
+    #     form = SnippetForm(instance=snippet)
+    #     return render(request, "pages/add_snippet.html", {"form": form})
+    # ==================================================================
+
     # Хотим использовать данные из формы и сохранить изменения в базе
     if request.method == "POST":
         data_form = request.POST
@@ -74,7 +84,8 @@ def snippet_edit(request, snippet_id: int):
         # как это сделать?
         snippet.name = data_form["name"]
         snippet.code = data_form["code"]
-        snippet.creation_date = data_form["creation_date"]
+        if (change_date := data_form.get("creation_date")):
+            snippet.creation_date = change_date
         # сохраняем этот изменения в базу
         snippet.save()
         return redirect("snippets-list")
