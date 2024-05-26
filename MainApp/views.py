@@ -1,8 +1,9 @@
-from django.http import Http404, HttpResponseNotFound
+from django.http import Http404, HttpResponse, HttpResponseNotFound
 from django.shortcuts import render, redirect
 from django.core.exceptions import ObjectDoesNotExist
 from MainApp.models import Snippet
 from MainApp.forms import SnippetForm
+from django.contrib import auth
 
 
 def index_page(request):
@@ -97,10 +98,22 @@ def snippet_delete(request, snippet_id: int):
     return redirect("snippets-list")
 
 
-# def create_snippet(request):
-#     if request.method == "POST":
-#         form = SnippetForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             return redirect("snippets-list")
-#         return render(request, "pages/add_snippet.html", {'form': form})
+def login(request):
+    if request.method == 'POST':
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        # print("username =", username)
+        # print("password =", password)
+
+        user = auth.authenticate(request, username=username, password=password)
+        if user is not None:
+            auth.login(request, user)
+        else:
+            # Return error messages
+            pass
+    return redirect("home")
+
+
+def logout(request):
+    auth.logout(request)
+    return redirect('home')
