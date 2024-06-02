@@ -6,6 +6,7 @@ from MainApp.forms import SnippetForm
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 
+
 def index_page(request):
     context = {'pagename': 'PythonBin'}
     return render(request, 'pages/index.html', context)
@@ -45,7 +46,7 @@ def add_snippet_page(request):
 
 
 def snippets_page(request):
-    snippets = Snippet.objects.all()
+    snippets = Snippet.objects.filter(public=True)
     context = {
         'pagename': 'Просмотр сниппетов',
         'snippets': snippets
@@ -67,6 +68,7 @@ def snippet_detail(request, snippet_id):
         return render(request, "pages/snippet_detail.html", context)
 
 
+@login_required
 def snippet_edit(request, snippet_id: int):
     try:
         snippet = Snippet.objects.get(id=snippet_id)
@@ -102,10 +104,12 @@ def snippet_edit(request, snippet_id: int):
         if (change_date := data_form.get("creation_date")):
             snippet.creation_date = change_date
         # сохраняем этот изменения в базу
+        snippet.public = data_form.get('public', False)
         snippet.save()
         return redirect("snippets-list")
 
 
+@login_required
 def snippet_delete(request, snippet_id: int):
     snippet = Snippet.objects.get(id=snippet_id)
     snippet.delete()
